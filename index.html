@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Patatap Clone</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main id="app">
+      <canvas id="fx-canvas" aria-hidden="true"></canvas>
+      <section id="grid" aria-label="Interactive sound grid"></section>
+
+      <aside id="mode-card" aria-live="polite">
+        <span class="mode-label">Theme</span>
+        <strong id="mode-name"></strong>
+      </aside>
+
+      <footer id="hud">
+        <p>Tap any block for a unique sound and visual. Tap the bottom-right block to switch themes.</p>
+      </footer>
+
+      <div id="mode-toast" aria-live="polite"></div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
