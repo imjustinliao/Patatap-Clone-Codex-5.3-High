@@ -39,7 +39,7 @@ Interactive full-screen web app inspired by Patatap:
 
 ## Run
 
-Open `index.html` in a browser.
+Open `index.html` in a browser or live on https://imjustinliao.github.io/Patatap-Clone-Codex-5.3-High/.
 
 No build step is required.
 

@@ -121,6 +121,7 @@ let effects = [];
 let currentTheme = 0;
 let viewportWidth = window.innerWidth;
 let viewportHeight = window.innerHeight;
+let canvasRatio = window.devicePixelRatio || 1;
 let audioContext = null;
 let masterGainNode = null;
 let compressorNode = null;
@@ -161,8 +162,43 @@ function bindEvents() {
   gridEl.addEventListener("pointerup", onPadPointerUpOrCancel);
   gridEl.addEventListener("pointercancel", onPadPointerUpOrCancel);
   gridEl.addEventListener("pointerleave", onPadPointerLeave);
+  gridEl.addEventListener("lostpointercapture", onPadPointerUpOrCancel);
+  window.addEventListener("pointerup", onPadPointerUpOrCancel, true);
+  window.addEventListener("pointercancel", onPadPointerUpOrCancel, true);
   window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("orientationchange", resizeCanvas);
+  document.addEventListener("visibilitychange", onVisibilityChange);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", resizeCanvas);
+    window.visualViewport.addEventListener("scroll", resizeCanvas);
+  }
   window.addEventListener("keydown", onKeyDown);
+}
+
+function onVisibilityChange() {
+  if (!document.hidden) {
+    resizeCanvas();
+    effects = [];
+    clearCanvas();
+    pointerStates.clear();
+    for (const pad of pads) {
+      pad.classList.remove("is-active");
+      if (pad._activeTimeout) {
+        clearTimeout(pad._activeTimeout);
+        pad._activeTimeout = null;
+      }
+    }
+  }
+}
+
+function clearCanvas() {
+  if (!fxCtx) {
+    return;
+  }
+  fxCtx.save();
+  fxCtx.setTransform(1, 0, 0, 1, 0, 0);
+  fxCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+  fxCtx.restore();
 }
 
 function onPadPointerDown(event) {
@@ -193,10 +229,6 @@ function onPadPointerDown(event) {
 function onPadPointerMove(event) {
   const state = pointerStates.get(event.pointerId);
   if (!state || !state.down) {
-    return;
-  }
-
-  if (state.pointerType === "touch") {
     return;
   }
 
@@ -537,7 +569,7 @@ function spawnModeSwitchEffects(x, y) {
 }
 
 function renderFrame(timestamp) {
-  fxCtx.clearRect(0, 0, viewportWidth, viewportHeight);
+  clearCanvas();
 
   for (let i = effects.length - 1; i >= 0; i -= 1) {
     const effect = effects[i];
@@ -550,7 +582,11 @@ function renderFrame(timestamp) {
       effects.splice(i, 1);
       continue;
     }
-    drawEffect(effect, progress);
+    try {
+      drawEffect(effect, progress);
+    } catch (err) {
+      effects.splice(i, 1);
+    }
   }
 
   requestAnimationFrame(renderFrame);
@@ -785,12 +821,19 @@ function makeClickEcho(x, y, color) {
 }
 
 function resizeCanvas() {
-  const ratio = window.devicePixelRatio || 1;
+  canvasRatio = window.devicePixelRatio || 1;
   viewportWidth = window.innerWidth;
   viewportHeight = window.innerHeight;
-  canvasEl.width = Math.floor(viewportWidth * ratio);
-  canvasEl.height = Math.floor(viewportHeight * ratio);
-  fxCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+  if (window.visualViewport) {
+    viewportWidth = Math.floor(window.visualViewport.width);
+    viewportHeight = Math.floor(window.visualViewport.height);
+  }
+
+  canvasEl.width = Math.floor(viewportWidth * canvasRatio);
+  canvasEl.height = Math.floor(viewportHeight * canvasRatio);
+  fxCtx.setTransform(canvasRatio, 0, 0, canvasRatio, 0, 0);
+  clearCanvas();
 }
 
 function colorWithAlpha(hex, alpha) {
