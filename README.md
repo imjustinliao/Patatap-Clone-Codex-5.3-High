@@ -39,7 +39,7 @@ Interactive full-screen web app inspired by Patatap:
 
 ## Run
 
-Open `/Users/justin-liao/CS Projects/temp/Test/patatap clone/index.html` in a browser.
+Open `index.html` in a browser.
 
 No build step is required.
 
@@ -50,4 +50,4 @@ No build step is required.
 
 ## License
 
-MIT. See `/Users/justin-liao/CS Projects/temp/Test/patatap clone/LICENSE`.
+MIT. See `LICENSE`.
