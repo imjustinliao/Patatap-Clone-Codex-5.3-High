@@ -51,7 +51,6 @@ body {
   position: relative;
   border: 1px solid var(--grid-line);
   background: transparent;
-  cursor: pointer;
   transition:
     transform 120ms ease,
     border-color 180ms ease,
@@ -81,8 +80,14 @@ body {
     transform 160ms ease;
 }
 
-.pad:hover::before {
-  opacity: 0.12;
+@media (hover: hover) and (pointer: fine) {
+  .pad {
+    cursor: pointer;
+  }
+
+  .pad:hover::before {
+    opacity: 0.12;
+  }
 }
 
 .pad:focus-visible {

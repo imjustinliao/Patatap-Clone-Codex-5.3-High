@@ -171,8 +171,17 @@ function onPadPointerDown(event) {
     return;
   }
   event.preventDefault();
+
+  if (event.pointerType === "touch") {
+    for (const state of pointerStates.values()) {
+      if (state.down && state.pointerType === "touch") {
+        return;
+      }
+    }
+  }
+
   gridEl.setPointerCapture?.(event.pointerId);
-  pointerStates.set(event.pointerId, { down: true, lastIndex: null });
+  pointerStates.set(event.pointerId, { down: true, lastIndex: null, pointerType: event.pointerType });
   const index = Number(pad.dataset.index);
   triggerPad(index, pad, { x: event.clientX, y: event.clientY });
   const state = pointerStates.get(event.pointerId);
@@ -184,6 +193,10 @@ function onPadPointerDown(event) {
 function onPadPointerMove(event) {
   const state = pointerStates.get(event.pointerId);
   if (!state || !state.down) {
+    return;
+  }
+
+  if (state.pointerType === "touch") {
     return;
   }
 
